@@ -9,6 +9,9 @@ class RestRequest {
 	public function __construct() {
 		$this->verb = $_SERVER['REQUEST_METHOD'];
 		$this->urlElements = explode('/', substr($_SERVER['PHP_SELF'], strlen($_SERVER['SCRIPT_NAME'])+1));
+		if (empty(end($this->urlElements))) {
+			array_pop($this->urlElements);
+		}
 		$this->parseIncomingParams();
 		// initialise json as default format
 		$this->format = 'json';
