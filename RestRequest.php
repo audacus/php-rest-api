@@ -7,6 +7,7 @@ class RestRequest {
 	private $parameters;
 
 	public function __construct() {
+		// echo '<pre>'.print_r($_SERVER,1).'</pre>';die();
 		$this->verb = $_SERVER['REQUEST_METHOD'];
 		$this->urlElements = explode('/', substr($_SERVER['PHP_SELF'], strlen($_SERVER['SCRIPT_NAME'])+1));
 		if (empty(end($this->urlElements))) {
@@ -31,32 +32,51 @@ class RestRequest {
 
 		// now how about PUT/POST bodies? These override what we got from GET
 		$body = file_get_contents('php://input');
-		$content_type = false;
+		$contentType = false;
 		if(isset($_SERVER['CONTENT_TYPE'])) {
-			$content_type = $_SERVER['CONTENT_TYPE'];
+			$contentType = $_SERVER['CONTENT_TYPE'];
 		}
-		switch($content_type) {
-			case 'application/json':
-				$body_params = json_decode($body);
-				if($body_params) {
-					foreach($body_params as $param_name => $param_value) {
-						$parameters[$param_name] = $param_value;
-					}
-				}
-				$this->format = 'json';
-				break;
-			case 'application/x-www-form-urlencoded':
-				parse_str($body, $postvars);
-				foreach($postvars as $field => $value) {
-					$parameters[$field] = $value;
 
+		if (strpos($contentType, 'application/json') !== false) {
+			$bodyParams = json_decode($body, true);
+			if($bodyParams) {
+				foreach($bodyParams as $paramName => $paramValue) {
+					$parameters[$paramName] = $paramValue;
 				}
-				$this->format = 'html';
-				break;
-			default:
-				// we could parse other supported formats here
-				break;
+			}
+			$this->format = 'json';
 		}
+		if (strpos($contentType, 'application/x-www-form-urlencoded') !== false) {
+			parse_str($body, $postvars);
+			foreach($postvars as $field => $value) {
+				$parameters[$field] = $value;
+
+			}
+			$this->format = 'html';
+		}
+
+		// switch($contentType) {
+		// 	case 'application/json':
+		// 		$bodyParams = json_decode($body);
+		// 		if($bodyParams) {
+		// 			foreach($bodyParams as $paramName => $paramValue) {
+		// 				$parameters[$paramName] = $paramValue;
+		// 			}
+		// 		}
+		// 		$this->format = 'json';
+		// 		break;
+		// 	case 'application/x-www-form-urlencoded':
+		// 		parse_str($body, $postvars);
+		// 		foreach($postvars as $field => $value) {
+		// 			$parameters[$field] = $value;
+
+		// 		}
+		// 		$this->format = 'html';
+		// 		break;
+		// 	default:
+		// 		// we could parse other supported formats here
+		// 		break;
+		// }
 		$this->parameters = $parameters;
 	}
 
