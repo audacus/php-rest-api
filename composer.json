@@ -1,3 +1,6 @@
 {
-    "name": "audacus/php-rest-api"
+    "name": "audacus/php-rest-api",
+    "autoload": {
+        "files": ["RestRequest.php"]
+    }
 }
