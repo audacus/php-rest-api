@@ -1,3 +1,4 @@
 {
-    "name": "audacus/rest-api"
+    "name": "audacus/rest-api",
+    "version": "dev"
 }
